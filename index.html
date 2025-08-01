@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Absensi Siswa</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+        max-width: 700px;
+        margin: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+      }
+      select {
+        width: 100%;
+      }
+      button {
+        margin-top: 15px;
+        padding: 10px 15px;
+        margin-right: 10px;
+      }
+      .status {
+        margin-top: 15px;
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Absensi Siswa Kelas</h2>
+
+    <label
+      >Tanggal:
+      <input type="date" id="tanggal" required />
+    </label>
+
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Kelas</th>
+          <th>Kehadiran</th>
+        </tr>
+      </thead>
+      <tbody id="absenTable">
+        <!-- Diisi oleh JavaScript -->
+      </tbody>
+    </table>
+
+    <button onclick="setSemuaHadir()">Hadir Semua</button>
+    <button onclick="kirimAbsen()">Kirim Absen</button>
+
+    <div class="status" id="statusText"></div>
+
+    <script>
+      const siswa = [
+        { nama: "Siswa 1", kelas: "5A" },
+        { nama: "Siswa 2", kelas: "5A" },
+        { nama: "Siswa 3", kelas: "5A" },
+        { nama: "Siswa 4", kelas: "5A" },
+        { nama: "Siswa 5", kelas: "5A" },
+        { nama: "Siswa 6", kelas: "5A" },
+        { nama: "Siswa 7", kelas: "5A" },
+        { nama: "Siswa 8", kelas: "5A" },
+        { nama: "Siswa 9", kelas: "5A" },
+        { nama: "Siswa 10", kelas: "5A" },
+        { nama: "Siswa 11", kelas: "5A" },
+        { nama: "Siswa 12", kelas: "5A" },
+        { nama: "Siswa 13", kelas: "5A" },
+        { nama: "Siswa 14", kelas: "5A" },
+        { nama: "Siswa 15", kelas: "5A" },
+        { nama: "Siswa 16", kelas: "5A" },
+        { nama: "Siswa 17", kelas: "5A" },
+        { nama: "Siswa 18", kelas: "5A" },
+        { nama: "Siswa 19", kelas: "5A" },
+        { nama: "Siswa 20", kelas: "5A" },
+        { nama: "Siswa 21", kelas: "5A" },
+        { nama: "Siswa 22", kelas: "5A" },
+        { nama: "Siswa 23", kelas: "5A" },
+        { nama: "Siswa 24", kelas: "5A" },
+        { nama: "Siswa 25", kelas: "5A" },
+        { nama: "Siswa 26", kelas: "5A" },
+      ];
+
+      const tableBody = document.getElementById("absenTable");
+
+      siswa.forEach((s, index) => {
+        const row = document.createElement("tr");
+
+        const noCell = document.createElement("td");
+        noCell.textContent = index + 1;
+        row.appendChild(noCell);
+
+        const namaCell = document.createElement("td");
+        namaCell.textContent = s.nama;
+        row.appendChild(namaCell);
+
+        const kelasCell = document.createElement("td");
+        kelasCell.textContent = s.kelas;
+        row.appendChild(kelasCell);
+
+        const selectCell = document.createElement("td");
+        const select = document.createElement("select");
+        select.innerHTML = `
+        <option value="Masuk">Masuk</option>
+        <option value="Sakit">Sakit</option>
+        <option value="Izin">Izin</option>
+        <option value="Alpa">Alpa</option>
+      `;
+        selectCell.appendChild(select);
+        row.appendChild(selectCell);
+
+        tableBody.appendChild(row);
+      });
+
+      function setSemuaHadir() {
+        const selects = document.querySelectorAll("tbody select");
+        selects.forEach((s) => (s.value = "Masuk"));
+      }
+
+      async function kirimAbsen() {
+        const tanggal = document.getElementById("tanggal").value;
+        if (!tanggal) {
+          alert("Silakan pilih tanggal terlebih dahulu.");
+          return;
+        }
+
+        const URL_WEB_APP =
+          "https://script.google.com/macros/s/AKfycbzCVc_8v8MrQcUCIkkeXixKznnN3iErfCYy41ZdeHsfV3LCwqhZsy1stTJAuXEYUTBO/exec"; // Ganti ini
+
+        const rows = document.querySelectorAll("#absenTable tr");
+        let berhasil = 0;
+
+        for (let i = 0; i < siswa.length; i++) {
+          const nama = siswa[i].nama;
+          const kelas = siswa[i].kelas;
+          const kehadiran = rows[i].querySelector("select").value;
+
+          const params = new URLSearchParams();
+          params.append("nama", nama);
+          params.append("kelas", kelas);
+          params.append("tanggal", tanggal);
+          params.append("kehadiran", kehadiran);
+
+          try {
+            const res = await fetch(URL_WEB_APP, {
+              method: "POST",
+              body: params,
+            });
+
+            if (res.ok) berhasil++;
+          } catch (err) {
+            console.log("Gagal kirim untuk:", nama);
+          }
+        }
+
+        document.getElementById(
+          "statusText"
+        ).textContent = `Absen terkirim untuk ${berhasil} siswa.`;
+      }
+    </script>
+  </body>
+</html>
